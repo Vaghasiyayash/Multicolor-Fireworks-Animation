@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+    <head>
+   <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+        <title>Page Title</title>
+<script src="plugin.js">
+</script>
+        <style>
+            body,html,#cnvs{
+            margin:0px;
+            padding:0px;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="cnvs"></canvas>
+        <script>
+var ctx=cnvs.getContext('2d');
+var w=cnvs.width=innerWidth,
+            h=cnvs.height=innerHeight;
+
+var img=new Image();
+img.src=imgSrc;
+window.onload=function(){
+    animate();
+    alert("Wish you Happy Independence Day \n Touch on Screen")
+}       
+
+function constructFlag(x,y,r){
+            
+     return {
+            "saffron":{"x":x-(r*4),"y":y-(r*3),"w":r*8,"h":r*2},
+            "white"  :{"x":x-(r*4),"y":y-r,"w":r*8,"h":r*2},
+            "chakra" :{"x":x,"y":y,"w":r,"h":r},
+            "green"  :{"x":x-(r*4),"y":y+r,"w":r*8,"h":r*2}
+     }
+}
+
+function FireWork(x,y,velX,velY){
+    this.x=x;
+    this.y=y;
+    this.fillR=225;
+    this.fillG=120;
+    this.fillB=55;
+    this.ttl=100;
+    this.radius=2;
+    this.px=w/2;
+    this.py=h;
+    this.gravity=0.05;
+    this.velocity={
+        "x": velX*1.5,
+        "y": velY*2.5
+    }
+}
+
+FireWork.prototype.update=function(){
+ this.x+=this.velocity.x;
+ this.y+=this.velocity.y;
+ this.velocity.y+=this.gravity;
+
+ this.ttl-=1;
+ if(distance(this.x,this.y,flag.chakra.x,flag.chakra.y)<=flag.chakra.w){
+    this.fillR=0;
+    this.fillG=0;
+    this.fillB=225;
+} else if(collideXY({"x":this.x,"y":this.y,"w":4,"h":4},flag.white)){
+    this.fillR=225;
+    this.fillG=225;
+    this.filklB=225;
+} else if(collideXY({"x":this.x,"y":this.y,"w":4,"h":4},flag.saffron)){
+    this.fillR=255;
+    this.fillG=128;
+    this.fillB=0;
+} else if(collideXY({"x":this.x,"y":this.y,"w":4,"h":4},flag.green)){
+    this.fillR=0;
+    this.fillG=128;
+    this.fillB=0;
+}
+
+ ctx.beginPath();
+ ctx.moveTo(this.x,this.y);
+ ctx.lineTo(this.px,this.py,0,0);
+ ctx.strokeStyle=`rgba(${this.fillR},${this.fillG},${this.fillB},${this.ttl/100})`;
+ ctx.stroke()
+ ctx.closePath();
+ this.px=this.x;
+ this.py=this.y;
+}
+
+  var flag;       
+  var fireWorks=[];    
+  
+cnvs.addEventListener("click",(e)=>{
+   
+flag=constructFlag(e.pageX,e.pageY,w/20);
+  // console.log(JSON.stringify(flag,null,2))
+for(var a=0;a<300;a++){
+ let ran=random(-100,10);
+fireWorks.push(new  FireWork(e.pageX,e.pageY,Math.sin(ran)*Math.random()*2,Math.cos(ran)*(Math.random()*2)));
+}
+var aud=new Audio(audSrc);
+    aud.play();
+    
+ })
+function random(min,max){
+ return Math.floor(Math.random()*(max-min+1)+min);
+}
+ 
+        
+function animate(){
+    requestAnimationFrame(animate);
+ctx.fillStyle="rgba(50,50,50,0.2)";
+ctx.fillRect(0,0,w,h);
+ctx.drawImage(img,0,0,w,h)
+   
+fireWorks.forEach((fw,index)=>{
+  fw.update();
+  if(fireWorks[index].ttl<=0){
+      fireWorks.splice(index,1);
+      }
+})
+}
+
+           function collideX(obj1,obj2){
+       if(( (obj1.x >= obj2.x) && (obj1.x <= obj2.x+obj2.w) ) || (obj2.x >= obj1.x) && (obj2.x <= obj1.x+obj1.w) ){
+        return 1;
+
+       } else {
+           return 0;
+       }
+    } 
+
+
+    function collideY(obj1,obj2){
+       if(( (obj1.y >= obj2.y) && (obj1.y <= obj2.y+obj2.h) ) || (obj2.y >= obj1.y) && (obj2.y <= obj1.y+obj1.h) ){
+        return 1;
+    
+       } else {
+           return 0;
+       }
+    } 
+
+   function collideXY(obj1,obj2){
+       if(collideX(obj1,obj2) && collideY(obj1,obj2)){
+         return 1;
+       } else {
+           return 0;
+       }
+       }
+function distance(x1,y1,x2,y2){
+      return Math.round(Math.sqrt(((x1-x2)**2)+((y1-y2)**2)))
+}    
+       
+        </script>
+    </body>
+</html>
